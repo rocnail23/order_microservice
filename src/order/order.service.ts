@@ -20,12 +20,11 @@ export class OrderService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    console.log('createOrderDto', createOrderDto);
     const ids = createOrderDto.items.map((item) => item.productId);
-    console.log(ids);
+
     let validatedProducts: ValidatedProduct[];
     try {
-      console.log('sending');
+      
       validatedProducts = await firstValueFrom(
         this.productClient.send<ValidatedProduct[]>(
           { cmd: 'validate_products' },
@@ -33,7 +32,7 @@ export class OrderService {
         ),
       );
     } catch (error) {
-      console.log(error);
+  
       return this.handleError(
         HttpStatus.BAD_REQUEST,
         'Product validation failed',
@@ -48,9 +47,7 @@ export class OrderService {
     try {
       const orderItemsData = createOrderDto.items.map((item) => {
         const product = productsMap.get(item.productId);
-        console.log(typeof item.productId);
-        console.log(productsMap);
-        console.log(item.productId);
+      
         if (!product) {
           this.handleError(
             HttpStatus.BAD_REQUEST,
@@ -79,7 +76,7 @@ export class OrderService {
           },
         },
       };
-      console.log(data,'creandor');
+      
       return await this.prisma.order.create({ data });
     } catch (error) {
       console.log(error)
@@ -96,7 +93,7 @@ export class OrderService {
       const data = await this.prisma.order.findMany({
         orderBy: { createdAt: 'desc' },
       });
-      console.log(data)
+      
       return data;
     } catch (error) {
       this.handleError(
@@ -109,10 +106,8 @@ export class OrderService {
 
   async findOne(id: string): Promise<Order> {
     try {
-      console.log(id, 'siii');
       const order = await this.prisma.order.findUnique({ where: { id } });
       if (!order) {
-        console.log('cachapa1');
         return this.handleError(HttpStatus.NOT_FOUND, `Order ${id} not found`);
       }
       return order;
